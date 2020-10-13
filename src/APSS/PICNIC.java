@@ -1,3 +1,5 @@
+package APSS;
+
 import java.util.Scanner;
 
 public class PICNIC {
