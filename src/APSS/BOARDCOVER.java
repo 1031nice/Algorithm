@@ -9,8 +9,9 @@ import java.util.ListIterator;
 public class BOARDCOVER {
 
     public static void main(String[] args) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/input.txt"));
+        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/input_BOARDCOVER.txt"));
         ListIterator<String> iterator = lines.listIterator();
+
         int numOfTestCases = Integer.parseInt(iterator.next());
         int [] answers = new int[numOfTestCases];
         int row;
@@ -47,13 +48,13 @@ public class BOARDCOVER {
     }
 
     private static int func(char[][] arr, int index, int count) {
-        if(count == 0)
+        if(count == 0) // 모두선택
             return 1;
         else if(index >= arr.length * arr[0].length)
             return 0;
         else if(check(arr, index))
             return 0;
-        else {
+        else { // recursive
             int ret = 0;
             if (pick(arr, index, 1)) { // 1사분면 모양
                 ret += func(arr, index+1, count - 3);
@@ -78,7 +79,6 @@ public class BOARDCOVER {
 
     private static boolean check(char[][] arr, int index) {
         int row = index / arr[0].length;
-        int col = index % arr[0].length;
         if(row < 2)
             return false;
         else{
