@@ -9,7 +9,7 @@ import java.util.ListIterator;
 public class BOARDCOVER {
 
     public static void main(String[] args) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/input_BOARDCOVER.txt"));
+        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/inputs/input_BOARDCOVER.txt"));
         ListIterator<String> iterator = lines.listIterator();
 
         int numOfTestCases = Integer.parseInt(iterator.next());

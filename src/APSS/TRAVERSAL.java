@@ -11,7 +11,7 @@ public class TRAVERSAL {
 
     public static void main(String[] args) throws IOException {
         // input
-        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/input_TRAVERSAL.txt"));
+        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/inputs/input_TRAVERSAL.txt"));
         ListIterator<String> iterator = lines.listIterator();
         Scanner scanner = new Scanner(System.in);
         int numOfNodes = Integer.parseInt(iterator.next());
