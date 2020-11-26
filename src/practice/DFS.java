@@ -7,8 +7,9 @@ public class DFS {
 
     public static void main(String[] args) {
 
-        // initialization
-        List<List<Integer>> graph = new ArrayList<>();
+
+        // adj list initialization
+        List<List<Integer>> adjList = new ArrayList<>();
         List<Integer> node1 = new ArrayList<>();
         node1.add(1); node1.add(3); node1.add(4); node1.add(5);
         List<Integer> node2 = new ArrayList<>();
@@ -19,25 +20,42 @@ public class DFS {
         node4.add(4); node4.add(1); node4.add(2);
         List<Integer> node5 = new ArrayList<>();
         node5.add(5); node5.add(1); node5.add(2);
-        graph.add(node1); graph.add(node2); graph.add(node3); graph.add(node4); graph.add(node5);
-
-        int [] visited = new int [graph.size()];
-
-        // 연결되지 않은 그래프가 있을 수 있으므로
-        for(int i=0; i<graph.size(); i++) {
-            dfs(graph, 0, visited);
+        adjList.add(node1); adjList.add(node2); adjList.add(node3); adjList.add(node4); adjList.add(node5);
+        int [] visited = new int [adjList.size()];
+        // dfs all graph(연결되지 않은 그래프가 있을 수 있으므로)
+        for(int i=0; i<adjList.size(); i++) {
+            dfsForAdjList(adjList, 0, visited);
         }
 
+        // adj matrix initialization
+        int numOfNodes = 5;
+        int [][] adjMatrix = {{0, 0, 1, 1, 1}, {0, 0, 1, 1, 1}, {1, 1, 0, 0, 0}, {1, 1, 0, 0, 0}, {1, 1, 0, 0, 0}};
+        visited = new int [numOfNodes];
+        dfsForAdjMatrix(adjMatrix, 0, visited);
     }
 
-    static void dfs(List<List<Integer>> graph, int start, int [] visited) {
-        List<Integer> startNode = graph.get(start);
+    private static void dfsForAdjMatrix(int[][] adjMatrix, int start, int[] visited) {
+        for(int i=0; i<adjMatrix.length; i++){
+            if(visited[start] == 0) {
+                System.out.print(start + 1 + " ");
+                visited[start] = 1;
+            }
+            if(adjMatrix[start][i] != 0 && visited[i] == 0) {
+                System.out.print(i + 1 + " ");
+                visited[i] = 1;
+                dfsForAdjMatrix(adjMatrix, i, visited);
+            }
+        }
+    }
+
+    static void dfsForAdjList(List<List<Integer>> adjList, int start, int [] visited) {
+        List<Integer> startNode = adjList.get(start);
         for(int j=0; j<startNode.size(); j++) {
             int value = startNode.get(j);
             if (visited[value - 1] == 0) {
                 System.out.print(value + " ");
                 visited[value - 1] = 1;
-                dfs(graph, value - 1, visited);
+                dfsForAdjList(adjList, value - 1, visited);
             }
         }
     }
