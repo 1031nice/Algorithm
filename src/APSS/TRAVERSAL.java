@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Scanner;
 
 public class TRAVERSAL {
 
@@ -13,7 +12,6 @@ public class TRAVERSAL {
         // input
         List<String> lines = Files.readAllLines(Paths.get("./src/APSS/inputs/input_TRAVERSAL.txt"));
         ListIterator<String> iterator = lines.listIterator();
-        Scanner scanner = new Scanner(System.in);
         int numOfNodes = Integer.parseInt(iterator.next());
         int[] front = new int[numOfNodes];
         int[] middle = new int[numOfNodes];
