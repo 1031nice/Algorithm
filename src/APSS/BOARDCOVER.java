@@ -8,6 +8,13 @@ import java.util.ListIterator;
 
 public class BOARDCOVER {
 
+    public static int[][][] coverType = {
+            {{0, 0}, {-1, 0}, {0, 1}},
+            {{0, 0}, {1, 0}, {0, 1}},
+            {{0, 0}, {1, 0}, {0, -1}},
+            {{0, 0}, {-1, 0}, {0, -1}}
+    };
+
     public static void main(String[] args) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get("./src/APSS/inputs/input_BOARDCOVER.txt"));
         ListIterator<String> iterator = lines.listIterator();
@@ -56,21 +63,11 @@ public class BOARDCOVER {
             return 0;
         else { // recursive
             int ret = 0;
-            if (pick(arr, index, 1)) { // 1사분면 모양
-                ret += func(arr, index+1, count - 3);
-                unpick(arr, index, 1);
-            }
-            if (pick(arr, index, 2)) { // 2사분면 모양
-                ret += func(arr, index+1, count - 3);
-                unpick(arr, index, 2);
-            }
-            if (pick(arr, index, 3)) { // 3사분면 모양
-                ret += func(arr, index+1, count - 3);
-                unpick(arr, index, 3);
-            }
-            if (pick(arr, index, 4)) { // 4사분면 모양
-                ret += func(arr, index+1, count - 3);
-                unpick(arr, index, 4);
+            for(int dir=1; dir<=4; dir++){ // dir: n사분면
+                if (set(arr, index, dir, '#')) { // pick
+                    ret += func(arr, index+1, count - 3);
+                    set(arr, index, dir, '.'); // unpick
+                }
             }
             ret += func(arr, index+1, count);
             return ret;
@@ -90,76 +87,91 @@ public class BOARDCOVER {
         }
     }
 
-    private static void unpick(char[][] arr, int index, int dir) {
-        int row = index / arr[0].length;
-        int col = index % arr[0].length;
-        switch (dir) {
-            case 1:
-                arr[row][col] = '.';
-                arr[row - 1][col] = '.';
-                arr[row][col + 1] = '.';
-                break;
-            case 2:
-                arr[row][col] = '.';
-                arr[row + 1][col] = '.';
-                arr[row][col + 1] = '.';
-                break;
-            case 3:
-                arr[row][col] = '.';
-                arr[row + 1][col] = '.';
-                arr[row][col - 1] = '.';
-                break;
-            case 4:
-                arr[row][col] = '.';
-                arr[row - 1][col] = '.';
-                arr[row][col - 1] = '.';
-                break;
-        }
-    }
+//    private static void unpick(char[][] arr, int index, int type) {
+//        int row = index / arr[0].length;
+//        int col = index % arr[0].length;
+//        for(int i=0; i<3; i++){
+//            arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = '.';
+//        }
+////        switch (type) {
+////            case 1:
+////                arr[row][col] = '.';
+////                arr[row - 1][col] = '.';
+////                arr[row][col + 1] = '.';
+////                break;
+////            case 2:
+////                arr[row][col] = '.';
+////                arr[row + 1][col] = '.';
+////                arr[row][col + 1] = '.';
+////                break;
+////            case 3:
+////                arr[row][col] = '.';
+////                arr[row + 1][col] = '.';
+////                arr[row][col - 1] = '.';
+////                break;
+////            case 4:
+////                arr[row][col] = '.';
+////                arr[row - 1][col] = '.';
+////                arr[row][col - 1] = '.';
+////                break;
+////        }
+//    }
 
-    private static boolean pick(char[][] arr, int index, int dir) {
+    private static boolean set(char[][] arr, int index, int type, char delta) {
         int row = index / arr[0].length;
         int col = index % arr[0].length;
-        switch (dir) {
-            case 1:
-                if (row - 1 < 0 || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col+1] == '#')
-                    return false;
-                else {
-                    arr[row][col] = '#';
-                    arr[row - 1][col] = '#';
-                    arr[row][col + 1] = '#';
-                    return true;
-                }
-            case 2:
-                if (row + 1 >= arr.length || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col+1] == '#')
-                    return false;
-                else {
-                    arr[row][col] = '#';
-                    arr[row + 1][col] = '#';
-                    arr[row][col + 1] = '#';
-                    return true;
-                }
-            case 3:
-                if (row + 1 >= arr.length || col - 1 < 0 || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col-1] == '#')
-                    return false;
-                else {
-                    arr[row][col] = '#';
-                    arr[row + 1][col] = '#';
-                    arr[row][col - 1] = '#';
-                    return true;
-                }
-            case 4:
-                if (row - 1 < 0 || col - 1 < 0 || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col-1] == '#')
-                    return false;
-                else {
-                    arr[row][col] = '#';
-                    arr[row - 1][col] = '#';
-                    arr[row][col - 1] = '#';
-                    return true;
-                }
-            default:
+        for(int i=0; i<3; i++) {
+            int newRow = row + coverType[type - 1][i][0];
+            int newCol = col + coverType[type - 1][i][1];
+            if(newRow >= arr.length || newRow < 0 || newCol >= arr[0].length || newCol < 0)
+                return false;
+            if(arr[newRow][newCol] == delta)
                 return false;
         }
+        for(int i=0; i<3; i++){
+            arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = delta;
+        }
+        return true;
+//        switch (type) {
+//            case 1:
+//                if (row - 1 < 0 || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col+1] == '#')
+//                    return false;
+//                else {
+//                    arr[row][col] = '#';
+//                    arr[row - 1][col] = '#';
+//                    arr[row][col + 1] = '#';
+//                    return true;
+//                }
+//            case 2:
+//                if (row + 1 >= arr.length || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col+1] == '#')
+//                    return false;
+//                else {
+//                    arr[row][col] = '#';
+//                    arr[row + 1][col] = '#';
+//                    arr[row][col + 1] = '#';
+//                    return true;
+//                }
+//            case 3:
+//                if (row + 1 >= arr.length || col - 1 < 0 || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col-1] == '#')
+//                    return false;
+//                else {
+//                    arr[row][col] = '#';
+//                    arr[row + 1][col] = '#';
+//                    arr[row][col - 1] = '#';
+//                    return true;
+//                }
+//            case 4:
+//                if (row - 1 < 0 || col - 1 < 0 || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col-1] == '#')
+//                    return false;
+//                else {
+//                    arr[row][col] = '#';
+//                    arr[row - 1][col] = '#';
+//                    arr[row][col - 1] = '#';
+//                    return true;
+//                }
+//            default:
+//                return false;
+//        }
     }
 
 }

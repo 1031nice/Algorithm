@@ -107,3 +107,171 @@ ID: BOGGLE(150p)
 <br>기록: 8개의 방향을 배열로 나타내는 테크닉을 기억해두자. 또, 이런 유형의 재귀함수를 구현할 때
 인덱스 검사의 순서와 정답 검사 위치에 따라 불필요한 반복이 더 생길 수도,
 운이 더 나쁘면 답이 틀리는 경우가 발생할 수도 있다는 점을 조심하자.
+
+#### 2021.1.6
+BOARDCOVER 알고리즘 개선
+* 도형을 채울 때 방향의 표현을 `switch`문(코드)에서 배열(데이터)로 변경
+```java
+// before
+private static boolean pick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    switch (type) {
+        case 1:
+            if (row - 1 < 0 || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col+1] == '#')
+                return false;
+            else {
+                arr[row][col] = '#';
+                arr[row - 1][col] = '#';
+                arr[row][col + 1] = '#';
+                return true;
+            }
+        case 2:
+            if (row + 1 >= arr.length || col + 1 >= arr[0].length || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col+1] == '#')
+                return false;
+            else {
+                arr[row][col] = '#';
+                arr[row + 1][col] = '#';
+                arr[row][col + 1] = '#';
+                return true;
+            }
+        case 3:
+            if (row + 1 >= arr.length || col - 1 < 0 || arr[row][col] == '#' || arr[row+1][col] == '#' || arr[row][col-1] == '#')
+                return false;
+            else {
+                arr[row][col] = '#';
+                arr[row + 1][col] = '#';
+                arr[row][col - 1] = '#';
+                return true;
+            }
+        case 4:
+            if (row - 1 < 0 || col - 1 < 0 || arr[row][col] == '#' || arr[row-1][col] == '#' || arr[row][col-1] == '#')
+                return false;
+            else {
+                arr[row][col] = '#';
+                arr[row - 1][col] = '#';
+                arr[row][col - 1] = '#';
+                return true;
+            }
+        default:
+            return false;
+    }
+}
+
+private static void unpick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    switch (type) {
+        case 1:
+            arr[row][col] = '.';
+            arr[row - 1][col] = '.';
+            arr[row][col + 1] = '.';
+            break;
+        case 2:
+            arr[row][col] = '.';
+            arr[row + 1][col] = '.';
+            arr[row][col + 1] = '.';
+            break;
+        case 3:
+            arr[row][col] = '.';
+            arr[row + 1][col] = '.';
+            arr[row][col - 1] = '.';
+            break;
+        case 4:
+            arr[row][col] = '.';
+            arr[row - 1][col] = '.';
+            arr[row][col - 1] = '.';
+            break;
+    }
+}
+
+// after
+public static int[][][] coverType = {
+    {{0, 0}, {-1, 0}, {0, 1}},
+    {{0, 0}, {1, 0}, {0, 1}},
+    {{0, 0}, {1, 0}, {0, -1}},
+    {{0, 0}, {-1, 0}, {0, -1}}
+};
+
+private static boolean pick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    for(int i=0; i<3; i++) {
+        int newRow = row + coverType[type - 1][i][0];
+        int newCol = col + coverType[type - 1][i][1];
+        if(newRow >= arr.length || newRow < 0 || newCol >= arr[0].length || newCol < 0)
+            return false;
+        if(arr[newRow][newCol] == '#')
+            return false;
+    }
+    for(int i=0; i<3; i++){
+        arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = '#';
+    }
+    return true;
+}
+
+private static void unpick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    for(int i=0; i<3; i++){
+        arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = '.';
+    }
+}
+```
+
+* pick()과 unpick()을 set()이라는 하나의 함수로 통합
+<br>장점: 두 함수의 차이점을 매개변수로 빼낸 뒤 하나의 함수로 합쳤다.
+두 함수의 코드가 비슷하여 중복되는 부분이 많았기 때문에 억지스러움 없이 합칠 수 있었고,
+합침으로써 많은 코드의 중복을 제거하였다.
+<br><br>단점: 하지만 덜 명시적인 코드가 되었다고 생각한다. pick과 unpick은 이름만 보고도
+무엇을 하는지 알 수 있는데, set은 매개변수로 무엇을 주는지를 확인해야 어떤 일을 하는지
+알 수 있기 때문이다. 또한 unpick은 pick이 호출되었을 때만 호출되는 함수이므로
+pick과 unpick이 분리되어있을 때는 조건의 검사를 pick에서만 해주면 unpick에서는
+조건 검사를 해줄 필요가 없었는데(unpick은 반드시 pick이 호출되어야만 호출되므로
+pick에서 이미 조건 검사를 해주었기 때문), 두 함수를 합치다보니 unpick 과정에서도 조건 검사가 들어가게 되었다.
+즉, unpick마다 매번 불필요한 조건 검사가 진행된다.    
+```java
+// before
+private static boolean pick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    for(int i=0; i<3; i++) {
+        int newRow = row + coverType[type - 1][i][0];
+        int newCol = col + coverType[type - 1][i][1];
+        if(newRow >= arr.length || newRow < 0 || newCol >= arr[0].length || newCol < 0)
+            return false;
+        if(arr[newRow][newCol] == '#')
+            return false;
+    }
+    for(int i=0; i<3; i++){
+        arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = '#';
+    }
+    return true;
+}
+
+private static void unpick(char[][] arr, int index, int type) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    for(int i=0; i<3; i++){
+        arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = '.';
+    }
+}
+
+// after
+private static boolean set(char[][] arr, int index, int type, char delta) {
+    int row = index / arr[0].length;
+    int col = index % arr[0].length;
+    for(int i=0; i<3; i++) {
+        int newRow = row + coverType[type - 1][i][0];
+        int newCol = col + coverType[type - 1][i][1];
+        if(newRow >= arr.length || newRow < 0 || newCol >= arr[0].length || newCol < 0)
+            return false;
+        if(arr[newRow][newCol] == delta)
+            return false;
+    }
+    for(int i=0; i<3; i++){
+        arr[row + coverType[type-1][i][0]][col + coverType[type-1][i][1]] = delta;
+    }
+    return true;
+}
+```
