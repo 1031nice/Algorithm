@@ -8,6 +8,9 @@ import java.util.ListIterator;
 
 public class BOARDCOVER {
 
+    // 도형의 종류가 하나의 for문
+    // 도형을 선택했을 때 예를 들어, L 모양이면 위, 지금, 오른쪽이 도형을 차지하는 포인트이므로 각각의 포인트를 배열로, 이 세개의 포인트를 또 배열로
+    // 사실 2차 배열이면 충분할듯
     public static int[][][] coverType = {
             {{0, 0}, {-1, 0}, {0, 1}},
             {{0, 0}, {1, 0}, {0, 1}},
@@ -16,7 +19,7 @@ public class BOARDCOVER {
     };
 
     public static void main(String[] args) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get("./src/APSS/inputs/input_BOARDCOVER.txt"));
+        List<String> lines = Files.readAllLines(Paths.get("./src/inputs/boardcover.txt"));
         ListIterator<String> iterator = lines.listIterator();
 
         int numOfTestCases = Integer.parseInt(iterator.next());
@@ -74,6 +77,7 @@ public class BOARDCOVER {
         }
     }
 
+    // 최적화를 위한 부분
     private static boolean check(char[][] arr, int index) {
         int row = index / arr[0].length;
         if(row < 2)
